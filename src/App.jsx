@@ -3,6 +3,7 @@ import Registration from "./pages/Registration";
 import { BrowserRouter, Routes, Route } from "react-router";
 import SignIn from "./pages/SignIn/SignIn";
 
+
 const App = () => {
   return (
     <BrowserRouter>

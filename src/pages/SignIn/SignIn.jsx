@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
 // import { FcGoogle } from "react-icons/fc";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const SignIn = () => {
+  const auth = getAuth();
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     password: "",
@@ -31,9 +33,13 @@ const SignIn = () => {
 
   // let error = {};
   const handleSignin = () => {
-    const { email, password } = loginInfo;
+    const { email, password } =loginInfo;
     if (!email) {
-      setLoginInfoError({ ...loginInfoError, emailError: "Email missing!", passwordError: "Password missing!" });
+      setLoginInfoError({
+        ...loginInfoError,
+        emailError: "Email missing!",
+        passwordError: "Password missing!",
+      });
     } else if (!password) {
       setLoginInfoError({
         ...loginInfoError,
@@ -45,8 +51,20 @@ const SignIn = () => {
         emailError: "",
         passwordError: "",
       });
+      // alert("ok")
+      //using firebase authentication=========
+
+      const { email, password } = loginInfo;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userinfo) => {
+          console.log(userinfo);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
+      //using firebase authentication=========
 
   //error handle and handleSignin function ========
 
@@ -108,9 +126,10 @@ const SignIn = () => {
                 </div>
                 <button
                   onClick={handleSignin}
-                  className="px-18 py-2 bg-blue_color rounded text-white text-lg cursor-pointer mt-10"
+                  className="px-18 py-2 bg-blue_color rounded text-white text-lg cursor-pointer mt-10" 
                 >
                   Login to Continue
+                  
                 </button>
               </form>
               <p className="mt-5 text-[#03014C] font-open text-[13.3px] text-font-normal">
