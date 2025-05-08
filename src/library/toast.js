@@ -28,7 +28,7 @@ export const errorToast = (msg ="errorToast Missing!") => {
 };
 export const infoToast = (msg ="infoToast Missing!") => {
     toast.info(msg, {
-        position: "bottom-center",
+        position: "top-center",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: false,

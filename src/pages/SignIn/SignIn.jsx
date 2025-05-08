@@ -6,8 +6,9 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  signOut,
 } from "firebase/auth";
-import { successToast } from "../../library/toast";
+import { infoToast, successToast } from "../../library/toast";
 
 const SignIn = () => {
   const auth = getAuth();
@@ -89,6 +90,22 @@ const SignIn = () => {
 
   //loginWithGoogle function===========
 
+  //signOutWithGoogle function===========
+  const signOutWithGoogle = () => {
+    // const provider = new GoogleAuthProvider();
+    signOut(auth)
+      .then(() => {
+        console.log("user signout");
+        // alert("signout");
+        infoToast("Sign out successful");
+      })
+      .catch((error) => {
+        console.log("error form signOut function", error);
+      });
+  };
+
+  //signOutWithGoogle function===========
+
   return (
     <div>
       <div className="flex">
@@ -106,9 +123,23 @@ const SignIn = () => {
               />
               <p
                 onClick={loginWithGoogle}
-                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer"
+                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer "
               >
                 Login with Google
+              </p>
+            </div>
+            <div className="flex gap-3 border border-opacity-30 px-5 py-4 rounded mb-4 justify-center">
+              <img
+                src="/src/assets/auth/google.png "
+                className="w-[20px] h-[20-px]"
+                alt="google.png"
+              />
+
+              <p
+                onClick={signOutWithGoogle}
+                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer"
+              >
+                Sign out
               </p>
             </div>
             <div className="">
