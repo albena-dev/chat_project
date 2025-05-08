@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
 // import { FcGoogle } from "react-icons/fc";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { successToast } from "../../library/toast";
 
 const SignIn = () => {
@@ -69,11 +74,20 @@ const SignIn = () => {
   //using firebase authentication=========
 
   //error handle and handleSignin function ========
-  
-  //loginWithGoogle function===========
-  // const loginWithGoogle = () => {};
 
-   //loginWithGoogle function===========
+  //loginWithGoogle function===========
+  const loginWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((userinfo) => {
+        console.log(userinfo);
+      })
+      .catch((error) => {
+        console.log("error form loginWithGoogle function", error);
+      });
+  };
+
+  //loginWithGoogle function===========
 
   return (
     <div>
@@ -92,7 +106,7 @@ const SignIn = () => {
               />
               <p
                 onClick={loginWithGoogle}
-                className="font-sans font-semibold text-[13.34px] text[#03014C] "
+                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer"
               >
                 Login with Google
               </p>
