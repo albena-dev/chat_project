@@ -12,6 +12,7 @@ import {
   updateProfile,
   sendEmailVerification,
 } from "firebase/auth";
+import { successToast } from "../library/toast";
 
 const Registration = () => {
   const auth = getAuth();
@@ -88,17 +89,18 @@ const Registration = () => {
           // console.log("user created succesfully ", userInfo);
         })
         .then(() => {
-          toast.success(`🦄 ${fullName} Registration successfull `, {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce,
-          });
+          successToast(`🦄 ${fullName} Registration successfull `)
+          // toast.success(`🦄 ${fullName} Registration successfull `, {
+          //   position: "top-center",
+          //   autoClose: 5000,
+          //   hideProgressBar: false,
+          //   closeOnClick: false,
+          //   pauseOnHover: true,
+          //   draggable: true,
+          //   progress: undefined,
+          //   theme: "dark",
+          //   transition: Bounce,
+          // });
           return sendEmailVerification(auth.currentUser);
         })
         .then((mailinfo) => {
