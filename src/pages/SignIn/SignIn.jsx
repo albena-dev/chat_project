@@ -10,8 +10,11 @@ import {
 } from "firebase/auth";
 import { infoToast, successToast } from "../../library/toast";
 
+import { getDatabase, ref, set } from "firebase/database";
+
 const SignIn = () => {
   const auth = getAuth();
+  const database = getDatabase();
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     password: "",
@@ -82,6 +85,11 @@ const SignIn = () => {
     signInWithPopup(auth, provider)
       .then((userinfo) => {
         console.log(userinfo);
+         set(ref(database, 'users'), {
+    username: "name",
+    email: "email@gmail.com",
+    profile_picture : "imageUrl"
+  });
       })
       .catch((error) => {
         console.log("error form loginWithGoogle function", error);
@@ -123,7 +131,7 @@ const SignIn = () => {
               />
               <p
                 onClick={loginWithGoogle}
-                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer "
+                className="font-sans font-semibold text-[13.34px] text-[#03014C] focus:outline-green-500 cursor-pointer "
               >
                 Login with Google
               </p>
@@ -131,13 +139,13 @@ const SignIn = () => {
             <div className="flex gap-3 border border-opacity-30 px-5 py-4 rounded mb-4 justify-center">
               <img
                 src="/src/assets/auth/google.png "
-                className="w-[20px] h-[20-px]"
+                className="w-[20px] h-[20px]"
                 alt="google.png"
               />
 
               <p
                 onClick={signOutWithGoogle}
-                className="font-sans font-semibold text-[13.34px] text[#03014C] focus:outline-green-500 cursor-pointer"
+                className="font-sans font-semibold text-[13.34px] text-[#03014C] focus:outline-green-500 cursor-pointer"
               >
                 Sign out
               </p>

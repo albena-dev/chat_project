@@ -69,6 +69,7 @@ const Registration = () => {
     } else if (!fullName) {
       setemailError("");
       setfullNameError("FullName missing!");
+      setpasswordError("Password missing!");
     } else if (!password) {
       setemailError("");
       setfullNameError("");
@@ -174,6 +175,7 @@ const Registration = () => {
                     className="border outline-0 border-gray-500 py-1 px-2 rounded"
                     name={name}
                     onChange={handleInput}
+                   
                   />
 
                   {name == "email" && email == "" ? (

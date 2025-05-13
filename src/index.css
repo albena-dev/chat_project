@@ -1,16 +1,38 @@
 @import "tailwindcss";
 
-
 :root {
   --blue_color: #5f35f5;
   --white_color: #fcfcfc;
   --auth_heading_color: #11175d;
   --black_color: #000000;
-
 }
 @theme {
   --color-blue_color: var(--blue_color);
   --color-white_color: var(--white_color);
   --color-auth_heading_color: var(--auth_heading_color);
   --color-black_color: var(--black_color);
+}
+.active {
+  background-color: red;
+  width: 90%;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  position: relative;
+}
+/* .active:hover{
+  color:#5f35f5;
+} */
+.active::after {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: -7px;
+  height: 100%;
+  width: 10px;
+  background-color: #5f35f5;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
