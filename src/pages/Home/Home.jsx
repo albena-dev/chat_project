@@ -1,10 +1,12 @@
-import React from "react";
-import Sidebar from "../../components/HomeComponent/Sidebar";
+import React from 'react'
+import GroupList from '../../components/HomeComponent/GroupList'
 
 const Home = () => {
   return (
-    <h1>This is home page</h1>
-  );
-};
+    <div>
+      <GroupList />
+    </div>
+  )
+}
 
-export default Home;
+export default Home

@@ -18,17 +18,17 @@ const Sidebar = () => {
     },
     {
       id: 2,
-      path: "massage",
+      path: "/massage",
       icon: <LuMessageCircleMore />,
     },
     {
       id: 3,
-      path: "notification",
+      path: "/notification",
       icon: <FaRegBell />,
     },
     {
       id: 4,
-      path: "settings",
+      path: "/settings",
       icon: <PiGearBold />,
     },
     {
@@ -37,7 +37,7 @@ const Sidebar = () => {
       icon: <FiLogOut />,
     },
   ];
-//   console.log(location.pathname);
+  //   console.log(location.pathname);
   //   handleNavigationItem============
   const handleNavigationItem = (path = "/") => {
     // alert("ghhjgj")
@@ -67,18 +67,18 @@ const Sidebar = () => {
           {navigationIcons?.map((item, index) =>
             navigationIcons.length - 1 == index ? (
               <div
-                 className= "text-[40px] text-white"
+                className="text-[40px] text-green-300 cursor-pointer"
                 key={item.id}
-                onClick={() => handleNavigationItem(item.path)}
+                // onClick={() => handleNavigationItem(item.path)}
               >
                 {item.icon}
               </div>
             ) : (
               <div
                 className={
-                  (location.pathname == item.path
-                    ? "active text-[40px] text-white"
-                    : "text-[40px] text-white")
+                  location.pathname == item.path
+                    ? "active text-[40px]  text-green-300 cursor-pointer"
+                    : "text-[40px]  text-green-300 cursor-pointer"
                 }
                 key={item.id}
                 onClick={() => handleNavigationItem(item.path)}
