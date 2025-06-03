@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 // import { FcGoogle } from "react-icons/fc";
 import {
   getAuth,
@@ -9,11 +9,11 @@ import {
   signOut,
 } from "firebase/auth";
 import { infoToast, successToast } from "../../library/toast";
-
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, push } from "firebase/database";
 
 const SignIn = () => {
   const auth = getAuth();
+  const navigate = useNavigate(); 
   const database = getDatabase();
   const [loginInfo, setLoginInfo] = useState({
     email: "",
@@ -45,11 +45,12 @@ const SignIn = () => {
   const handleSignin = () => {
     const { email, password } = loginInfo;
     if (!email) {
-      setLoginInfoError({
+      setLoginInfoError((prev)=>({
+        // ...prev
         ...loginInfoError,
         emailError: "Email missing!",
         passwordError: "Password missing!",
-      });
+      }));
     } else if (!password) {
       setLoginInfoError({
         ...loginInfoError,
@@ -64,11 +65,12 @@ const SignIn = () => {
       // alert("ok")
       //using firebase authentication=========
 
-      const { email, password } = loginInfo;
+      // const { email, password } = loginInfo;
       signInWithEmailAndPassword(auth, email, password)
         .then((userinfo) => {
           successToast("Login successful");
           console.log(userinfo);
+          navigate("/");
         })
         .catch((error) => {
           console.log(error);
@@ -85,11 +87,20 @@ const SignIn = () => {
     signInWithPopup(auth, provider)
       .then((userinfo) => {
         console.log(userinfo);
-         set(ref(database, 'users'), {
-    username: "name",
-    email: "email@gmail.com",
-    profile_picture : "imageUrl"
-  });
+        const { user } = userinfo;
+        // to create a unique id, using push Firebase function (realtime data id)==========
+        let useRef = push(ref(db, "users/"));
+        // to create a unique id, using push Firebase function (realtime data id)==========
+
+        set(useRef, {
+          username: user.displayName || "FullName missing",
+          email: user.email || "Email Missing",
+          profile_picture: user.photoURL,
+          userUid: user.uid,
+        });
+      })
+      .then(() => {
+        navigate("/");
       })
       .catch((error) => {
         console.log("error form loginWithGoogle function", error);
@@ -126,7 +137,7 @@ const SignIn = () => {
               {/* <FcGoogle /> */}
               <img
                 src="/src/assets/auth/google.png "
-                className="w-[20px] h-[20-px]"
+                className="w-[20px] h-[20px]"
                 alt="google.png"
               />
               <p

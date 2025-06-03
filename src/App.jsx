@@ -14,7 +14,10 @@ const App = () => {
         <Route path="/" element={<RootLayout />}>
           <Route index element={<Home />}></Route>
           <Route path="/massage" element={"This is massage page"}></Route>
-          <Route path="/notification" element={"This is notification page"}></Route>
+          <Route
+            path="/notification"
+            element={"This is notification page"}
+          ></Route>
           <Route path="/settings" element={"This is settings page"}></Route>
         </Route>
       </Routes>

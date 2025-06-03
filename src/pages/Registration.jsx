@@ -4,8 +4,8 @@ import { registrationInput } from "../library/lib";
 import { toast, Bounce } from "react-toastify";
 import { IoEye, IoEyeOffSharp } from "react-icons/io5";
 // import { Triangle } from 'react-loader-spinner'
-import { Link } from "react-router";
- 
+import { Link, useNavigate } from "react-router";
+
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -13,9 +13,12 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { successToast } from "../library/toast";
+import { getDatabase, push, ref, set } from "firebase/database";
 
 const Registration = () => {
   const auth = getAuth();
+  const db = getDatabase();
+  const navigate = useNavigate(); //react router DOM hook
   // const data = lib.registrationInput();
   const [email, setEmail] = useState("");
   const [fullName, setfullName] = useState("");
@@ -90,24 +93,23 @@ const Registration = () => {
           // console.log("user created succesfully ", userInfo);
         })
         .then(() => {
-          successToast(`🦄 ${fullName} Registration successfull `)
-          // toast.success(`🦄 ${fullName} Registration successfull `, {
-          //   position: "top-center",
-          //   autoClose: 5000,
-          //   hideProgressBar: false,
-          //   closeOnClick: false,
-          //   pauseOnHover: true,
-          //   draggable: true,
-          //   progress: undefined,
-          //   theme: "dark",
-          //   transition: Bounce,
-          // });
+          successToast(`🦄 ${fullName} Registration successfull `);
           return sendEmailVerification(auth.currentUser);
-        })
+        }) 
         .then((mailinfo) => {
+          // **********to create a unique id, using push Firebase function (realtime data id) data write (CRUD operation)***************
+          let useRef = push(ref(db, "users/"));
+          set(useRef, {
+            username: auth.currentUser.displayName || fullName,
+            email: auth.currentUser.email || email,
+            profile_picture: `https://images.pexels.com/photos/31854805/pexels-photo-31854805/free-photo-of-hand-reaching-for-cherry-blossom-flowers-in-spring.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load`,
+            userUid: auth.currentUser.uid,
+          });
           console.log(`email send `, mailinfo);
           // setLoadding(false);
+          navigate("/SignIn");
         })
+        // **********to create a unique id, using push Firebase function (realtime data id) data write (CRUD operation)***************
         .catch((error) => {
           console.log(
             ` error from  createUserWithEmailAndPassword ${error.code}`
@@ -175,7 +177,6 @@ const Registration = () => {
                     className="border outline-0 border-gray-500 py-1 px-2 rounded"
                     name={name}
                     onChange={handleInput}
-                   
                   />
 
                   {name == "email" && email == "" ? (
@@ -217,8 +218,11 @@ const Registration = () => {
               </div>
             </form>
             <p className="mt-5 text-[#03014C] font-open text-[13.3px] text-font-normal">
-              Already have an account ? 
-              <Link to={"/SignIn"} className="font-bold  hover:underline text-[#EA6C00] ml-2">
+              Already have an account ?
+              <Link
+                to={"/SignIn"}
+                className="font-bold  hover:underline text-[#EA6C00] ml-2"
+              >
                 Sign In
               </Link>
             </p>
