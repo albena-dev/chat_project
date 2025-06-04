@@ -6,6 +6,7 @@ import Avatar from "../../assets/homeassets/avatar_animation.gif";
 import { FaPlus } from "react-icons/fa";
 
 const FriendRequest = () => {
+
   const [totalNumber, setTotalnumber] = useState(9);
   return (
     <div>

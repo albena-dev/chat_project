@@ -3,20 +3,22 @@ import Sidebar from "../../components/HomeComponent/Sidebar";
 import { RiSearchLine } from "react-icons/ri";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import Avatar from "../../assets/homeassets/avatar_animation.gif";
-import { FaPlus } from "react-icons/fa";
+import { FaMinus, FaPlus } from "react-icons/fa";
 import { getDatabase, ref, onValue, set, push, off } from "firebase/database";
 import UserSkeleton from "../../Skeleon/UserSkeleton";
 import { getAuth } from "firebase/auth";
+import { successToast } from "../../library/toast";
+// import library from "../../library/moment.js";
 
 const UserList = () => {
   // const [totalNumber, setTotalnumber] = useState(6);
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loggedUser, setloggedUser] = useState({});
+  const [realtime, setRealtime] = useState(false);
   const db = getDatabase();
   const auth = getAuth();
 
-  //
   useEffect(() => {
     const fetchData = () => {
       setLoading(true);
@@ -38,20 +40,21 @@ const UserList = () => {
       });
     };
     fetchData();
-    // ********** clean up function*****   (network requesting and when leave the pae off the connection)*********
+    // ********** clean up function*****   (network requesting and when leave the page, off the connection)*********
     return () => {
-      const userRef = ref(db, "users/"); //closing the data fetch from external network
-      off(userRef);
+      const userRef = ref(db, "users/");
+      off(userRef); //closing the data fetch from external network using clean up function
     };
-    // or other way-----(network requesting and when leave the pae off the connection)
+    // or other way-----(network requesting and when leave the page, off the connection)
     // return () => {
     //   const userRef = ref(db, "users/"); //fetching data by this function from external network
     //   off(userRef); //or //closing the data fetch from external network
     //   off(unsubscribe);  //closing the data fetch from external network
     // };
     // ********** clean up function*********
-  }, []);
+  }, [realtime]);
   // console.log(loggedUser);
+
   if (loading) {
     return <UserSkeleton />;
   }
@@ -60,12 +63,20 @@ const UserList = () => {
   // console.log(auth.currentUser.uid);
 
   //**********  handleFrndRqstSend *********
-  const handleFrndRqstSend = (item ={}) => { //item ={}---- default parameter
-    console.log("hi", item);
-
+  const handleFrndRqstSend = (item = {}) => {
+    //item ={}---- default parameter
+    // console.log("hi", item);
+    // let userInfo = {
+    //   name: "chat",
+    //   id: 6768,
+    // };
+    // ************converting object to JSON data using strungify function*****************
+    // localStorage.setItem("information", JSON.stringify(userInfo)); //to convert JSON format function
+    // return;
+    // ************converting object to JSON data using strungify function*****************
     // ***************creating a database to store data for sending frnd rqst(firebase write operation)**********
     set(push(ref(db, "friendRequest/")), {
-      senderUid: loggedUser.userUid,
+      senderUid: loggedUser.userUid || auth.currentUser.uid,
       senderEmail: loggedUser.email,
       senderProfile_picture: loggedUser.profile_picture,
       senderUserKey: loggedUser.userKey,
@@ -76,10 +87,38 @@ const UserList = () => {
       receiverProfile_picture: item.profile_picture,
       receiverUserKey: item.userKey,
       receiverUsername: item.username,
-    });
+      // createdAt: getTimeNow(),
+    })
+      .then(() => {
+        set(push(ref(db, "notification/")), {
+          notificationMsg: `${loggedUser.username} send a friend request`,
+          senderProfile_picture: loggedUser.profile_picture,
+        });
+      })
+      .then(() => {
+        successToast(
+          `${loggedUser.username} send a friend request`,
+          "top-center"
+        );
+      })
+      .then(() => {
+        let userInfo = {
+          //taking an object named userInfo
+          FriendRqstId: loggedUser.userUid + item.userUid, //in the userInfo property = key(FriendRqstId) and value(sender + receiver)
+        };
+        // saving the info to localstorage
+        localStorage.setItem("senderReceiverId", JSON.stringify(userInfo)); //converting into JSON format
+        setRealtime(true); //to show in realtime
+      });
     // ***************creating a database to store data for sending frnd rqst(firebase write operation)**********
   };
   // ********** handleFrndRqstSend *********
+
+  // ************getting senderReceiverId from localstorage**********
+  const senderReceiverId = JSON.parse(localStorage.getItem("senderReceiverId")); //to conver JSON to object function using parse
+  console.log(senderReceiverId?.FriendRqstId);
+  // ***********getting senderReceiverId from localstorage**********
+
   return (
     <div>
       <div className=" bg-gray-200 shadow-2xl p-2 rounded-2xl mb-2">
@@ -128,13 +167,28 @@ const UserList = () => {
                     Today, 8:56pm?
                   </p>
                 </div>
-                <button
-                  className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
-                  type="button"
-                  onClick={() => handleFrndRqstSend(item)}
-                >
-                  <FaPlus />
-                </button>
+                {/* to show frndrqst button +(plus) or -(minus) */}
+                {/* // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send, will show minus button ************ */}
+                {senderReceiverId?.FriendRqstId ==
+                loggedUser.userUid + item.userUid ? (
+                  <button
+                    className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                    type="button"
+                    // onClick={() => handleFrndRqstSend(item)}
+                    // no need to click after sending frndrqst, it will remain minus button and if localstorage data will deleted then it will back to plus button, to stop it(realtime changes) we need to do rerender it
+                  >
+                    <FaMinus />
+                  </button>
+                ) : (
+                  <button
+                    className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                    type="button"
+                    onClick={() => handleFrndRqstSend(item)}
+                  >
+                    <FaPlus />
+                  </button>
+                  // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send *************
+                )}
               </div>
             ))}
           </div>

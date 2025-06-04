@@ -1,3 +1,4 @@
+
 export const registrationInput = () => {
   return [
     {
@@ -18,4 +19,6 @@ export const registrationInput = () => {
     },
   ];
 };
+
+
 
