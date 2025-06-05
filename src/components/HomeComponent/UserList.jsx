@@ -5,7 +5,7 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import Avatar from "../../assets/homeassets/avatar_animation.gif";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { getDatabase, ref, onValue, set, push, off } from "firebase/database";
-import UserSkeleton from "../../Skeleon/UserSkeleton";
+import UserSkeleton from "../../Skeleon/UserSkeleton"; 
 import { getAuth } from "firebase/auth";
 import { successToast } from "../../library/toast";
 // import library from "../../library/moment.js";
@@ -16,6 +16,8 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const [loggedUser, setloggedUser] = useState({});
   const [realtime, setRealtime] = useState(false);
+  // const [frndRqstList, setFrndRqstList] = useState([]);
+  const [requestSend, setRequestSend] = useState([]);
   const db = getDatabase();
   const auth = getAuth();
 
@@ -52,8 +54,43 @@ const UserList = () => {
     //   off(unsubscribe);  //closing the data fetch from external network
     // };
     // ********** clean up function*********
-  }, [realtime]);
+  }, [realtime]); //keeping a state variable(realtime) to rerender the bellow jsx and show the impect to the button
   // console.log(loggedUser);
+
+  //**********fetching /saving friendRequest data(firebase storage)******
+  useEffect(() => {
+    const fetchFriendRequest = () => {
+      const userRef = ref(db, "friendRequest/"); //fetching data by this function from external network
+      onValue(userRef, (snapshot) => {
+        let userFrndRqstList = [];
+        // const data = snapshot.val();
+        snapshot.forEach((item) => {
+          if (
+            loggedUser?.userUid ||
+            auth.currentUser.uid == item.val().senderUid
+          ) {
+            // console.log(item.val()); //to see the data from firabase data
+            userFrndRqstList.push(
+              auth?.currentUser?.uid?.concat(item.val().receiverUid)//one from local storage and one from server dada store
+            );
+          }
+        });
+        setRequestSend(userFrndRqstList);
+        // setLoading(false);
+      });
+    };
+    fetchFriendRequest();
+    // **********clean up function************
+    return () => {
+      const userRef = ref(db, "friendRequest/");
+      off(userRef);
+    };
+    // **********clean up function************
+  }, []);
+  // console.log(frndRqstList);
+  // console.log(requestSend);
+
+  //**********fetching /saving friendRequest data(firebase storage)******
 
   if (loading) {
     return <UserSkeleton />;
@@ -70,11 +107,11 @@ const UserList = () => {
     //   name: "chat",
     //   id: 6768,
     // };
-    // ************converting object to JSON data using strungify function*****************
+    // ************converting object to JSON data using stringify function*****************
     // localStorage.setItem("information", JSON.stringify(userInfo)); //to convert JSON format function
     // return;
-    // ************converting object to JSON data using strungify function*****************
-    // ***************creating a database to store data for sending frnd rqst(firebase write operation)**********
+    // ************converting object to JSON data using stringify function*****************
+    // ***************creating a database(local) to store data for sending frnd rqst(firebase write operation)**********
     set(push(ref(db, "friendRequest/")), {
       senderUid: loggedUser.userUid || auth.currentUser.uid,
       senderEmail: loggedUser.email,
@@ -88,6 +125,8 @@ const UserList = () => {
       receiverUserKey: item.userKey,
       receiverUsername: item.username,
       // createdAt: getTimeNow(),
+
+
     })
       .then(() => {
         set(push(ref(db, "notification/")), {
@@ -110,13 +149,13 @@ const UserList = () => {
         localStorage.setItem("senderReceiverId", JSON.stringify(userInfo)); //converting into JSON format
         setRealtime(true); //to show in realtime
       });
-    // ***************creating a database to store data for sending frnd rqst(firebase write operation)**********
+    // ***************creating a database(local) to store data for sending frnd rqst(firebase write operation)**********
   };
   // ********** handleFrndRqstSend *********
 
   // ************getting senderReceiverId from localstorage**********
   const senderReceiverId = JSON.parse(localStorage.getItem("senderReceiverId")); //to conver JSON to object function using parse
-  console.log(senderReceiverId?.FriendRqstId);
+  // console.log(senderReceiverId?.FriendRqstId);
   // ***********getting senderReceiverId from localstorage**********
 
   return (
@@ -169,8 +208,9 @@ const UserList = () => {
                 </div>
                 {/* to show frndrqst button +(plus) or -(minus) */}
                 {/* // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send, will show minus button ************ */}
-                {senderReceiverId?.FriendRqstId ==
-                loggedUser.userUid + item.userUid ? (
+                {/* {senderReceiverId?.FriendRqstId == loggedUser.userUid + item.userUid ? FriendRqstId == loggedUser.userUid + item.userUid ?*/}
+                 {requestSend.includes(auth.currentUser.uid.concat(item.userUid))? //to find any arry available or not using includes method
+                (
                   <button
                     className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
                     type="button"
