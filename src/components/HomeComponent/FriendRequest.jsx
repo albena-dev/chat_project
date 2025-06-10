@@ -1,12 +1,24 @@
+// ************all import data************
+
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/HomeComponent/Sidebar";
-import { RiSearchLine } from "react-icons/ri";
+import { RiDribbbleFill, RiSearchLine } from "react-icons/ri";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import Avatar from "../../assets/homeassets/avatar_animation.gif";
 import { FaPlus } from "react-icons/fa";
-import { getDatabase, ref, onValue, set, push, off } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  set,
+  push,
+  off,
+  remove,
+} from "firebase/database";
 import UserSkeleton from "../../Skeleon/UserSkeleton";
 import { getAuth } from "firebase/auth";
+
+// ************all import data************
 
 const FriendRequest = () => {
   const [totalNumber, setTotalnumber] = useState(9);
@@ -45,8 +57,52 @@ const FriendRequest = () => {
     // ********** clean up function*********
   }, []); //keeping a state variable(realtime) to rerender the bellow jsx and show the impect to the button
   // console.log(frndRqstList);
-  console.log(frndRqstList);
   // console.log(auth.currentUser.displayName);
+
+  // *************handleAcceptFR function****************
+  const handleAcceptFR = (fRitem) => {
+    // console.log(fRitem.FRkey);
+    set(push(ref(db, "friends/")), {
+      ...fRitem,
+      createdAt: new Date(),
+    })
+      .then(() => {
+        const dbref = ref(db, `friendRequest/${fRitem.FRkey}`);
+        remove(dbref);
+      })
+      .then(() => {
+        set(push(ref(db, "notification/")), {
+          notificationMsg: `${fRitem.receiverUsername} Accept a friend request`,
+          senderProfile_picture: loggedUser.profile_picture,
+          // receiverUserKey: fRitem.receiverUserKey,
+        });
+      })
+      .then(() => {
+        successToast(
+          `${fRitem.receiverUsername} send a friend request`,
+          "top-center"
+        );
+      })
+      .catch((error) => {
+        console.error("error from sending friend request", error);
+      });
+  };
+  // *************handleAcceptFR function****************
+
+  // *************handleRejectFR function****************
+  const handleRejectFR = (item = {}) => {
+    // taking blank object as a default parameter, (item={})
+    const confrimMsg = confirm("Do you want to reject?");
+    // console.log(confrimMsg);
+    if (!confrimMsg) {
+      return;
+    }
+    // to remove
+    const dbref = ref(db, `friendRequest/${item.FRkey}`);
+    remove(dbref);
+  };
+
+  // *************handleRejectFR function****************
   return (
     <div>
       <div className=" bg-gray-200 shadow-2xl p-2 rounded-2xl mb-2">
@@ -94,9 +150,20 @@ const FriendRequest = () => {
                     {/* {item.NewDate()} */}
                   </p>
                 </div>
-                <button className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans">
-                  Accept
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAcceptFR(item)} //to show whom frnd rqst is accepting, calling the function handleAcceptFR
+                    className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleRejectFR(item)}
+                    className="bg-[#f535d5e9]  px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                  >
+                    Reject
+                  </button>
+                </div>
               </div>
             ))}
           </div>

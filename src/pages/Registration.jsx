@@ -1,3 +1,5 @@
+
+// ************all import data************
 import React, { useState } from "react";
 import regis from "../assets/auth/regis.png";
 import { registrationInput } from "../library/lib";
@@ -5,15 +7,16 @@ import { toast, Bounce } from "react-toastify";
 import { IoEye, IoEyeOffSharp } from "react-icons/io5";
 // import { Triangle } from 'react-loader-spinner'
 import { Link, useNavigate } from "react-router";
-
+import { successToast } from "../library/toast";
+import { getDatabase, push, ref, set } from "firebase/database";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
 } from "firebase/auth";
-import { successToast } from "../library/toast";
-import { getDatabase, push, ref, set } from "firebase/database";
+
+// ************all import data************
 
 const Registration = () => {
   const auth = getAuth();
@@ -106,6 +109,8 @@ const Registration = () => {
             userUid: auth.currentUser.uid,
           });
           console.log(`email send `, mailinfo);
+          // console.log(auth.currentUser)
+          sendEmailVerification(auth.currentUser)
           // setLoadding(false);
           navigate("/SignIn");
         })

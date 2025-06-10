@@ -53,7 +53,7 @@ const Sidebar = () => {
   };
   //   ************handleNavigationItem*****************
 
-  //   *************handleUploadImg***************
+  //   *************handleUploadImg function***************
 
   const handleUploadImg = () => {
     // alert("fhhgk");
@@ -72,6 +72,7 @@ const Sidebar = () => {
         ],
         // googleApiKey: "AIrFcR8hKiRo",
         googleApiKey: googleApiKey, //original api key
+      
         searchBySites: ["all", "cloudinary.com"],
         searchByRights: true,
       },
@@ -83,7 +84,7 @@ const Sidebar = () => {
         // console.log(result.info.secure_url);
         // ***********upadating cloudinary picture**********
         // let updateValue = {
-        //   profile_picture: result?.info?.secure_url,
+          // profile_picture: result?.info?.secure_url,
         // };
         // update(ref(db), updateValue);
 
@@ -91,13 +92,15 @@ const Sidebar = () => {
         update(ref(db, `users/${userData.userKey}`), {
           profile_picture: result?.info?.secure_url,
         });
+       
+        // console.log(result?.info?.secure_url)
 
         // ***********upadating cloudinary picture**********
       }
     );
   };
 
-  //   *************handleUploadImg***************
+  //   *************handleUploadImg function***************
 
   //  ****************handleLogOut function**************
 
@@ -145,7 +148,7 @@ const Sidebar = () => {
     };
     fetchData();
   }, []);
-  console.log(userData);
+  // console.log(userData);
   // console.log(auth.currentUser.uid);
 
   //**********fetching data from firebase profile picture(cloudynary),username, matching uid& key****************
@@ -185,6 +188,7 @@ const Sidebar = () => {
               <div
                 className="text-[40px] text-green-300 cursor-pointer"
                 key={item.id}
+                // key={item.index}
                 onClick={handleLogOut}
               >
                 {item.icon}
@@ -197,6 +201,7 @@ const Sidebar = () => {
                     : "text-[40px]  text-green-300 cursor-pointer"
                 }
                 key={item.id}
+                // key={item.index}
                 onClick={() => handleNavigationItem(item.path)}
               >
                 {item.icon}

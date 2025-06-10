@@ -81,7 +81,7 @@ const SignIn = () => {
 
   //error handle and handleSignin function ========
 
-  //loginWithGoogle function===========
+  //*************loginWithGoogle function****************
   const loginWithGoogle = () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
@@ -107,7 +107,7 @@ const SignIn = () => {
       });
   };
 
-  //loginWithGoogle function===========
+  //*************loginWithGoogle function****************
 
   //signOutWithGoogle function===========
   const signOutWithGoogle = () => {

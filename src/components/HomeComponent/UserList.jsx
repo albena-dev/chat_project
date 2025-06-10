@@ -5,10 +5,11 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import Avatar from "../../assets/homeassets/avatar_animation.gif";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { getDatabase, ref, onValue, set, push, off } from "firebase/database";
-import UserSkeleton from "../../Skeleon/UserSkeleton"; 
+import UserSkeleton from "../../Skeleon/UserSkeleton";
 import { getAuth } from "firebase/auth";
 import { successToast } from "../../library/toast";
-// import library from "../../library/moment.js";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 const UserList = () => {
   // const [totalNumber, setTotalnumber] = useState(6);
@@ -16,10 +17,14 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const [loggedUser, setloggedUser] = useState({});
   const [realtime, setRealtime] = useState(false);
-  // const [frndRqstList, setFrndRqstList] = useState([]);
+  const [frndRqstList, setFrndRqstList] = useState([]);
   const [requestSend, setRequestSend] = useState([]);
   const db = getDatabase();
   const auth = getAuth();
+  dayjs.extend(relativeTime); //plugin for dayjs
+  const getTime =()=>{
+    return dayjs().format("MM DD YYYY, h:mm:ss a")
+  }
 
   useEffect(() => {
     const fetchData = () => {
@@ -71,12 +76,12 @@ const UserList = () => {
           ) {
             // console.log(item.val()); //to see the data from firabase data
             userFrndRqstList.push(
-              auth?.currentUser?.uid?.concat(item.val().receiverUid)//one from local storage and one from server dada store
+              auth?.currentUser?.uid?.concat(item.val().receiverUid) //one from local storage and one from server dada store
             );
           }
         });
         setRequestSend(userFrndRqstList);
-        // setLoading(false);
+        setLoading(false);
       });
     };
     fetchFriendRequest();
@@ -124,9 +129,7 @@ const UserList = () => {
       receiverProfile_picture: item.profile_picture,
       receiverUserKey: item.userKey,
       receiverUsername: item.username,
-      // createdAt: getTimeNow(),
-
-
+      createdAt: new Date(),
     })
       .then(() => {
         set(push(ref(db, "notification/")), {
@@ -148,9 +151,13 @@ const UserList = () => {
         // saving the info to localstorage
         localStorage.setItem("senderReceiverId", JSON.stringify(userInfo)); //converting into JSON format
         setRealtime(true); //to show in realtime
+      })
+      .catch((error) => {
+        console.error("error from sending friend request", error);
       });
     // ***************creating a database(local) to store data for sending frnd rqst(firebase write operation)**********
   };
+
   // ********** handleFrndRqstSend *********
 
   // ************getting senderReceiverId from localstorage**********
@@ -181,13 +188,14 @@ const UserList = () => {
           <div className="h-[35dvh] overflow-y-scroll p-4 ">
             {userList?.map((item, index) => (
               <div
-                // key={item.userUid}
+                key={item.userUid}
+                // key={index}
                 className={
                   userList?.length == index + 1
                     ? "flex justify-between items-center pr-6 pb-2 pt-2 cursor-pointer"
                     : "flex justify-between items-center pr-6 pb-2 pt-2 border-b-2 border-gray-400 cursor-pointer"
                 }
-                key={index}
+                
               >
                 <div className="w-[50px] h-[50px] rounded-full">
                   <picture>
@@ -201,16 +209,21 @@ const UserList = () => {
                 <div className="flex flex-col">
                   <h3 className="font-semibold font-sans text-[15px]">
                     {item.username}
+                     {/* key={index} */}
                   </h3>
                   <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
-                    Today, 8:56pm?
+                    {item.createdAt
+                      ? dayjs(item.createdAt).fromNow()
+                      : "Just now"}
+                    {/* {dayjs(item.createdAt).format("MMM D, YYYY h:mm A")} */}
                   </p>
                 </div>
                 {/* to show frndrqst button +(plus) or -(minus) */}
                 {/* // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send, will show minus button ************ */}
-                {/* {senderReceiverId?.FriendRqstId == loggedUser.userUid + item.userUid ? FriendRqstId == loggedUser.userUid + item.userUid ?*/}
-                 {requestSend.includes(auth.currentUser.uid.concat(item.userUid))? //to find any arry available or not using includes method
-                (
+                {/* {senderReceiverId?.FriendRqstId == loggedUser.userUid + item.userUid ? FriendRqstId == loggedUser.userUid + item.userUid ? */}
+                {requestSend.includes(
+                  auth.currentUser.uid.concat(item.userUid)
+                ) ? ( //to find any arry available or not using includes method
                   <button
                     className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
                     type="button"
