@@ -19,6 +19,7 @@ const UserList = () => {
   const [realtime, setRealtime] = useState(false);
   const [frndRqstList, setFrndRqstList] = useState([]);
   const [requestSend, setRequestSend] = useState([]);
+  const [allFrnd, setAllFrnd] = useState([]);
   const db = getDatabase();
   const auth = getAuth();
   dayjs.extend(relativeTime); //plugin for dayjs
@@ -97,6 +98,32 @@ const UserList = () => {
 
   //**********fetching /saving friendRequest data(firebase storage)******
 
+  //*************fetching data from friends to remove plus icon when in friend list/accept frndrqst******************
+  useEffect(() => {
+    const fetchFriendRequest = () => {
+      const userRef = ref(db, "friends/"); //fetching data by this function from external network
+      onValue(userRef, (snapshot) => {
+        let userFrndtList = [];
+        // const data = snapshot.val();
+        snapshot.forEach((item) => {
+          userFrndtList.push({ ...item.val(), friendKey: item.key });
+          // console.log(item.val())
+        });
+        setAllFrnd(userFrndtList);
+        setLoading(false);
+      });
+    };
+    fetchFriendRequest();
+    // **********clean up function************
+    return () => {
+      const userRef = ref(db, "friendRequest/");
+      off(userRef);
+    };
+    // **********clean up function************
+  }, []);
+
+  //*************fetching data from friends to remove plus icon when in friend list/accept frndrqst******************
+  console.log(allFrnd);
   if (loading) {
     return <UserSkeleton />;
   }
@@ -217,10 +244,10 @@ const UserList = () => {
                     {/* key={index} */}
                   </h3>
                   <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
-                    {item.createdAt
+                    {/* {item.createdAt
                       ? dayjs(item.createdAt).fromNow()
-                      : "Just now"}
-                   
+                      : "Just now"} */}
+                    {dayjs(item.createdAt).fromNow()}
                   </p>
                 </div>
                 {/* to show frndrqst button +(plus) or -(minus) */}
@@ -238,14 +265,19 @@ const UserList = () => {
                     <FaMinus />
                   </button>
                 ) : (
-                  <button
-                    className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
-                    type="button"
-                    onClick={() => handleFrndRqstSend(item)}
-                  >
-                    <FaPlus />
-                  </button>
-                  // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send *************
+                  // to remove the plus icon/button after accept the frndrqst this condition will need,if rqst accept will show nothing and if not accept will show plus button
+                  requestSend.includes(
+                    auth.currentUser.uid.concat(item.userUid)
+                  ) && ( 
+                    <button
+                      className="bg-[#5F35F5] px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                      type="button"
+                      onClick={() => handleFrndRqstSend(item)}
+                    >
+                      <FaPlus />
+                    </button>
+                    // *************condition for if it is match with localStoragedata and userInfo, that means frndRqst send *************
+                  )
                 )}
               </div>
             ))}

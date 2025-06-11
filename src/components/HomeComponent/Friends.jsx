@@ -29,7 +29,8 @@ const Friends = () => {
   const auth = getAuth();
   dayjs.extend(relativeTime); //plugin for dayjs
   const getTime = () => {
-    return dayjs().format("MM DD YYYY, h:mm:ss a");
+    // return dayjs().format("MM DD YYYY, h:mm:ss a");
+    return dayjs();
   };
 
   useEffect(() => {
@@ -39,11 +40,12 @@ const Friends = () => {
       onValue(userRef, (snapshot) => {
         let frndblankList = [];
         snapshot.forEach((item) => {
-          frndblankList.push({
-            ...item.val(),
-            friendkey: item.key,
-            sentAt: new Date(),
-          });
+          if (auth?.currentUser?.uid !== item.val().senderUid) //condition to hide sender uid/info from the friendlist when accept the friendrqst, and if not match it will show the both info (sender and receiver info/uid)
+            frndblankList.push({
+              ...item.val(),
+              friendkey: item.key,
+              sentAt: new Date(),
+            });
 
           // console.log(item.val());
         });
@@ -60,7 +62,7 @@ const Friends = () => {
 
     // ********** clean up function*********
   }, []);
-  console.log(frndList);
+  // console.log(frndList);
 
   return (
     <div>
@@ -83,37 +85,70 @@ const Friends = () => {
 
           {/* Friends heading =========== */}
           <div className="h-[35dvh] overflow-y-scroll p-4">
-            {frndList?.map((friend, index) => (
+            {frndList?.length == 0 ? ( //to show alert msg using the condition(ternary operator)
+              //"nei" //we can show a pop up/alert msg instead of nei
+              //tailwind design from flowbite.com to show a alert msg when friends list will be empty
               <div
-                className={
-                  totalNumber == index + 1
-                    ? "flex justify-between items-center pr-6 pb-2 pt-2 cursor-pointer"
-                    : "flex justify-between items-center pr-6 pb-2 pt-2 border-b-2 border-gray-400 cursor-pointer"
-                }
-                key={index}
+                className="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                role="alert"
               >
-                <div className="w-[50px] h-[50px] rounded-full ">
-                  <picture>
-                    <img
-                      src={friend.senderProfile_picture || Avatar}
-                      alt={Avatar}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  </picture>
+                <svg
+                  className="shrink-0 inline w-4 h-4 me-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                </svg>
+                <span className="sr-only">Info</span>
+                <div>
+                  <span className="font-medium">Info alert!</span> Change a few
+                  things up and try submitting again.
                 </div>
-                <div className="flex flex-col px-2">
-                  <h3 className="font-semibold font-sans text-[15px]">
-                    {friend.senderUsername}
-                  </h3>
-                  <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
-                    Hello?
-                  </p>
-                </div>
-                <p className=" px-2 text-gray-500 text-[14px] font-sans ">
-                  {dayjs(friend.sentAt).fromNow()}
-                </p>
               </div>
-            ))}
+            ) : (
+              //tailwind UI design from flowbite.com to show a alert msg when friends list will be empty
+              frndList?.map((friend, index) => (
+                <div
+                  className={
+                    totalNumber == index + 1
+                      ? "flex justify-between items-center pr-6 pb-2 pt-2 cursor-pointer"
+                      : "flex justify-between items-center pr-6 pb-2 pt-2 border-b-2 border-gray-400 cursor-pointer"
+                  }
+                  key={index}
+                >
+                  <div className="w-[50px] h-[50px] rounded-full ">
+                    <picture>
+                      <img
+                        src={friend.senderProfile_picture || Avatar}
+                        alt={Avatar}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </picture>
+                  </div>
+
+                  <div className="flex flex-col px-2">
+                    <h3 className="font-semibold font-sans text-[15px]">
+                      {friend.senderUsername}
+                    </h3>
+                    <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
+                      Hello?
+                    </p>
+                  </div>
+                  <p className=" text-gray-500 text-[14px] font-sans ">
+                    {dayjs(friend.sentAt).fromNow()}
+                  </p>
+
+                  <button
+                    // onClick={() => handleRejectFR(item)}
+                    className="bg-[#f5353fe9]  px-1 py-1 text-white text-[14px] rounded cursor-pointer font-sans"
+                  >
+                    Block
+                  </button>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Friends heading =========== */}
