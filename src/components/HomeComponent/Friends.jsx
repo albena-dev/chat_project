@@ -17,6 +17,9 @@ import {
 import UserSkeleton from "../../Skeleon/UserSkeleton";
 import { getAuth } from "firebase/auth";
 
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
 // ************all import data************
 const Friends = () => {
   const [totalNumber, setTotalnumber] = useState(6);
@@ -24,6 +27,10 @@ const Friends = () => {
   const [frndList, setFrndList] = useState([]);
   const db = getDatabase();
   const auth = getAuth();
+  dayjs.extend(relativeTime); //plugin for dayjs
+  const getTime = () => {
+    return dayjs().format("MM DD YYYY, h:mm:ss a");
+  };
 
   useEffect(() => {
     const fetchData = () => {
@@ -35,7 +42,7 @@ const Friends = () => {
           frndblankList.push({
             ...item.val(),
             friendkey: item.key,
-            // sentAt: NewDate(),
+            sentAt: new Date(),
           });
 
           // console.log(item.val());
@@ -47,7 +54,7 @@ const Friends = () => {
     fetchData();
     // ********** clean up function*****   (network requesting and when leave the page, off the connection)*********
     return () => {
-      const userRef = ref(db, "friendRequest/");
+      const userRef = ref(db, "friends/");
       off(userRef); //closing the data fetch from external network using clean up function
     };
 
@@ -65,7 +72,7 @@ const Friends = () => {
             <h1 className="relative font-semibold font-sans text-[18px]">
               Friends
               <span className="absolute left-17 top-0 w-6 h-6 rounded-full bg-green-300 flex justify-center items-center">
-                {totalNumber}
+                {frndList.length}
               </span>
             </h1>
             <span>
@@ -76,7 +83,7 @@ const Friends = () => {
 
           {/* Friends heading =========== */}
           <div className="h-[35dvh] overflow-y-scroll p-4">
-            {frndList.map((friend, index) => (
+            {frndList?.map((friend, index) => (
               <div
                 className={
                   totalNumber == index + 1
@@ -94,16 +101,16 @@ const Friends = () => {
                     />
                   </picture>
                 </div>
-                <div>
+                <div className="flex flex-col px-2">
                   <h3 className="font-semibold font-sans text-[15px]">
-                    Raghav
+                    {friend.senderUsername}
                   </h3>
                   <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
-                    Dinner?
+                    Hello?
                   </p>
                 </div>
-                <p className=" px-2 text-gray-500 text-[14px] font-sans">
-                  Today, 8:56pm
+                <p className=" px-2 text-gray-500 text-[14px] font-sans ">
+                  {dayjs(friend.sentAt).fromNow()}
                 </p>
               </div>
             ))}

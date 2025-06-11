@@ -17,6 +17,12 @@ import {
 } from "firebase/database";
 import UserSkeleton from "../../Skeleon/UserSkeleton";
 import { getAuth } from "firebase/auth";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+ dayjs.extend(relativeTime); //plugin for dayjs
+  const getTime = () => {
+    return dayjs().format("MM DD YYYY, h:mm:ss a");
+  };
 
 // ************all import data************
 
@@ -34,11 +40,13 @@ const FriendRequest = () => {
       onValue(userRef, (snapshot) => {
         let frndRqstblankList = [];
         snapshot.forEach((item) => {
-          if (auth.currentUser.uid == item.val().senderUid) {
+          // if (auth.currentUser.uid == item.val().senderUid)
+           if (auth.currentUser.uid == item.val().receiverUid)
+             {
             frndRqstblankList.push({
               ...item.val(),
               FRkey: item.key,
-              // sentAt: NewDate(),
+              sentAt: new Date(),
             });
           }
           // console.log(item.val());
@@ -72,14 +80,14 @@ const FriendRequest = () => {
       })
       .then(() => {
         set(push(ref(db, "notification/")), {
-          notificationMsg: `${fRitem.receiverUsername} Accept a friend request`,
-          senderProfile_picture: loggedUser.profile_picture,
-          // receiverUserKey: fRitem.receiverUserKey,
+          notificationMsg: `${fRitem.senderUsername} Accept a friend request`,
+          // senderProfile_picture: senderUsername.profile_picture,
+          // senderKey: senderUsername.senderKey,
         });
       })
       .then(() => {
         successToast(
-          `${fRitem.receiverUsername} send a friend request`,
+          `${fRitem.senderUsername} send a friend request`,
           "top-center"
         );
       })
@@ -91,7 +99,7 @@ const FriendRequest = () => {
 
   // *************handleRejectFR function****************
   const handleRejectFR = (item = {}) => {
-    // taking blank object as a default parameter, (item={})
+    // taking blank object as a default parameter --> (item={})
     const confrimMsg = confirm("Do you want to reject?");
     // console.log(confrimMsg);
     if (!confrimMsg) {
@@ -113,7 +121,7 @@ const FriendRequest = () => {
             <h1 className="relative font-semibold font-sans text-[18px]">
               Friend Request
               <span className="absolute left-32 top-0 w-6 h-6 rounded-full bg-green-300 flex justify-center items-center">
-                {totalNumber}
+                {frndRqstList.length}
               </span>
             </h1>
             <span>
@@ -142,12 +150,12 @@ const FriendRequest = () => {
                     />
                   </picture>
                 </div>
-                <div className="pr-32">
+                <div className="">
                   <h3 className="font-semibold font-sans text-[15px]">
                     {item.senderUsername}
                   </h3>
                   <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
-                    {/* {item.NewDate()} */}
+                  {dayjs(item.sentAt).fromNow()}
                   </p>
                 </div>
                 <div className="flex gap-2">

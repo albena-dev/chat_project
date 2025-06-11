@@ -22,9 +22,9 @@ const UserList = () => {
   const db = getDatabase();
   const auth = getAuth();
   dayjs.extend(relativeTime); //plugin for dayjs
-  const getTime =()=>{
-    return dayjs().format("MM DD YYYY, h:mm:ss a")
-  }
+  const getTime = () => {
+    return dayjs().format("MM DD YYYY, h:mm:ss a");
+  };
 
   useEffect(() => {
     const fetchData = () => {
@@ -124,6 +124,12 @@ const UserList = () => {
       senderUserKey: loggedUser.userKey,
       senderUsername: loggedUser.username,
 
+      // senderUid: senderUid.userUid || auth.currentUser.uid,
+      // senderEmail: senderEmail.email,
+      // senderProfile_picture: senderprofile_picture.profile_picture,
+      // senderUserKey: senderUserKey.userKey,
+      // senderUsername: senderUsername.username,
+
       receiverUid: item.userUid,
       receiverEmail: item.email,
       receiverProfile_picture: item.profile_picture,
@@ -195,7 +201,6 @@ const UserList = () => {
                     ? "flex justify-between items-center pr-6 pb-2 pt-2 cursor-pointer"
                     : "flex justify-between items-center pr-6 pb-2 pt-2 border-b-2 border-gray-400 cursor-pointer"
                 }
-                
               >
                 <div className="w-[50px] h-[50px] rounded-full">
                   <picture>
@@ -209,13 +214,13 @@ const UserList = () => {
                 <div className="flex flex-col">
                   <h3 className="font-semibold font-sans text-[15px]">
                     {item.username}
-                     {/* key={index} */}
+                    {/* key={index} */}
                   </h3>
                   <p className="font-semibold font-sans text-[12px] text-[#4D4D4DBF]">
                     {item.createdAt
                       ? dayjs(item.createdAt).fromNow()
                       : "Just now"}
-                    {/* {dayjs(item.createdAt).format("MMM D, YYYY h:mm A")} */}
+                   
                   </p>
                 </div>
                 {/* to show frndrqst button +(plus) or -(minus) */}
